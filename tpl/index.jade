@@ -1,0 +1,58 @@
+doctype html
+html
+    head
+        title= "Dynamic rooms w/ Socket I/O"
+        link(rel='stylesheet', href='/stylesheets/css/bootstrap.min.css')
+        link(rel='stylesheet', href='/stylesheets/css/bootstrap-theme.min.css')
+        link(rel='stylesheet', href='/stylesheets/style.css')
+    body
+        h1 Socket I/O Session
+        section.row
+            section.col-md-12#gameSection
+                div#initScene
+                    div.btn-group
+                        button(type="button").btn.btn-default#btnJoinGame Join
+                        button(type="button").btn.btn-default#btnCreateGame Create
+
+
+
+
+
+        script(src='http://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.js')
+        script(src='/socket.io/socket.io.js')
+
+        script(src='/scripts/scripts.js')
+
+
+        script(id="game-section-template", type="text/template")
+            #initScene
+                div.btn-group
+                    button.btn.btn-default#btnJoinGame Join
+                    button.btn.btn-default#btnCreateGame Create
+
+        script(id="create-game-template", type="text/template")
+          div.createGameWrapper
+            div.info Open this site on your mobile device:
+            div.infoBig#gameURL
+
+            div.info enter the following Game ID:
+            div.gameId#spanNewGameCode
+
+            div#playersWaiting
+
+        script(id="join-game-template", type="text/template")
+          div.input-group
+            input(type='text', class="form-control", placeholder="gameID")#inputGameID
+            input(type='text', class="form-control name", placeholder="Name")#inputPlayerName
+          button.btn.btn-default#send Send
+
+        script(id="host-game-template", type="text/template")
+          div#wordArea
+            #hostWord 5
+          div#playerScores
+            div#player1Score.playerScore
+              span.score 0
+              span.playerName Player 1
+            //- div#player2Score.playerScore
+            //-   span.score 0
+            //-   span.playerName Player 2

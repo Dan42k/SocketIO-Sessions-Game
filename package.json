@@ -1,0 +1,11 @@
+{
+    "name": "DynamicRooms",
+    "version": "0.0.0",
+    "description": "Dynamic rooms w/ Socket I/O",
+    "dependencies": {
+        "socket.io": "latest",
+        "express": "latest",
+        "jade": "latest"
+    },
+    "author": "developer"
+}
