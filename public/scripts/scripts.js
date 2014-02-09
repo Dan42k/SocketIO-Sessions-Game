@@ -4,7 +4,7 @@ jQuery(function($){
 
     var socket = io.connect('http://127.0.0.1:4700');
 
-    
+    var doge = 0;
     var App = {
         gameID: 0,
         myRole: '',
@@ -19,6 +19,7 @@ jQuery(function($){
         bindEvents: function () {
             // Host
             $('#btnCreateGame').on('click', Host.onCreateClick);
+            $('#gameSection').on('click', '#btnStartGame', Host.launchGame);
 
             // Player
             $('#btnJoinGame').on('click', Player.onJoinClick);
@@ -97,18 +98,25 @@ jQuery(function($){
 
         updateWaitingScreen: function(data) {
 
-            $('#playersWaiting')
-                    .append('<p/>')
-                    .text('Player ' + data.name + ' joined the game.');
+            $('#playersWaiting').append('<p>' + 'Player ' + data.name + ' joined the game.' + '</p>');
 
             Host.players.push(data);
+            console.log(Host.players);
             Host.numPlayersInRoom += 1;
-
-            if (Host.numPlayersInRoom === 1) {
+            doge++;
+            /*if (Host.numPlayersInRoom === 3) {
                 console.log('max players allow reached');
-                socket.emit('hostRoomFull', App.gameID);
-            } else if(Host.numPlayersInRoom > 2) {
+                
+            } */
+            if(Host.numPlayersInRoom > 2) {
                 console.log('too many');
+                $('#btnStartGame').show();
+            }
+        },
+
+        launchGame: function (data) {
+            if (Host.numPlayersInRoom === 3) {
+                socket.emit('hostRoomFull', App.gameID);
             }
         },
 
@@ -117,9 +125,19 @@ jQuery(function($){
 
             socket.emit('hostCountdownFinished', App.gameId);
 
-            $('#player1Score')
+            for (var i = 0; i < Host.numPlayersInRoom; i++) {
+                $('#playerScores').append('<div id="player' + i + 'Score" class="playerScore"><span class="score">0</span><span class="playerName">0</span>');
+            };
+
+            for (var i = 0; i < Host.numPlayersInRoom; i++) {
+                $('#player' + i + 'Score').find('.playerName').html(Host.players[i].name);
+                $('#player' + i + 'Score').find('.score').attr('id', Host.players[i].mySocketID);
+                console.log(i);
+            };
+
+           /* $('#player1Score')
                     .find('.playerName')
-                    .html(Host.players[0].name);
+                    .html(Host.players[0].name);*/
 
             console.log(Host.players[0]);
 
@@ -128,7 +146,7 @@ jQuery(function($){
                     .html(Host.players[1].name);*/
 
                 // Set the Score section on screen to 0 for each player.
-                $('#player1Score').find('.score').attr('id', Host.players[0].mySocketID);
+                //$('#player1Score').find('.score').attr('id', Host.players[0].mySocketID);
                 //$('#player2Score').find('.score').attr('id', Host.players[1].mySocketId);
         },
 
@@ -143,7 +161,7 @@ jQuery(function($){
                 var $pScore = $('#' + data.playerID);
 
                 //console.log(Host.currentCorrectAnswer, data.answer);
-
+                console.log($pScore);
                 if(Host.currentCorrectAnswer === data.answer ) {
                     // Add 5 to the player's score
                     console.log($pScore);
@@ -201,6 +219,7 @@ jQuery(function($){
         },
 
         newQuestion: function (data) {
+            $('#gameSection').append('<div>' + Player.name + '</div>');
             var $list = $('<ul/>').attr('id','ulAnswers');
 
                 // Insert a list item for each word in the word list

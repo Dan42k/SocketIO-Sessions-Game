@@ -16,7 +16,7 @@ app.use(express.static(__dirname + '/public'));
 
 var io = require('socket.io').listen(app.listen(port));
 
-io.set('log level', 1); 
+//io.set('log level', 1); 
 
 var socketMain;
 
@@ -94,7 +94,6 @@ function playerJoinGame(data) {
 
         // Emit an event notifying the clients that the player has joined the room.
         io.sockets.in(data.gameID).emit('playerJoinedRoom', data);
-
     } else {
         // Otherwise, send an error message back to the player.
         this.emit('error', {message: "This room does not exist."} );
@@ -168,6 +167,26 @@ var questions =
             'Factuelle',
             'Mortelle',
             'Contractuelle'
+        ]
+    },
+    {
+        "question" : "Quel personnage de la famille Simpson est gaucher ?",
+        "answer" : 0,
+        "answers" :  [
+            'Bart',
+            'Homer',
+            'Maggie',
+            'Lisa'
+        ]
+    },
+    {
+        "question" : "Quel épisode d'un jeu peut être d'Or ou d'Argent ?",
+        "answer" : 0,
+        "answers" :  [
+            'Pokémon',
+            '',
+            'Maggie',
+            'Lisa'
         ]
     }
 ];

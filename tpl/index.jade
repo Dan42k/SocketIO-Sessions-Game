@@ -9,13 +9,10 @@ html
         h1 Socket I/O Session
         section.row
             section.col-md-12#gameSection
-                div#initScene
+                div#initScene.col-md-4.col-md-offset-4
                     div.btn-group
-                        button(type="button").btn.btn-default#btnJoinGame Join
-                        button(type="button").btn.btn-default#btnCreateGame Create
-
-
-
+                        button(type="button").btn.btn-default#btnJoinGame Join a game
+                        button(type="button").btn.btn-default#btnCreateGame Create a game
 
 
         script(src='http://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.js')
@@ -39,6 +36,7 @@ html
             div.gameId#spanNewGameCode
 
             div#playersWaiting
+            button.btn.btn-default#btnStartGame(style="display: none;") Start
 
         script(id="join-game-template", type="text/template")
           div.input-group
@@ -50,9 +48,10 @@ html
           div#wordArea
             #hostWord 5
           div#playerScores
-            div#player1Score.playerScore
-              span.score 0
-              span.playerName Player 1
+            //- div#player1Score.playerScore
+            //-   span.score 0
+            //-   span.playerName Player 1
+           
             //- div#player2Score.playerScore
             //-   span.score 0
             //-   span.playerName Player 2
