@@ -35,7 +35,14 @@ io.sockets.on('connection', function (socket) {
     socketMain.on('playerAnswer', playerAnswer);
 	socketMain.on('hostNextRound', hostNextRound);
 
-	console.log('started');
+    socketMain.on('disconnect', function(){
+        
+        //var userDisconnected = socket.pseudo;
+        console.log(this);
+        /*socket.broadcast.emit('user_leave', { username: userDisconnected });
+        delete users[socket.pseudo];*/
+        io.sockets.emit('player_disconnected');
+    });
 });
 
 function hostPrepareGame(gameID) {
@@ -96,10 +103,12 @@ function playerJoinGame(data) {
         io.sockets.in(data.gameID).emit('playerJoinedRoom', data);
     } else {
         // Otherwise, send an error message back to the player.
-        this.emit('error', {message: "This room does not exist."} );
+        this.emit('NotFoundRoom', {message: "This room does not exist."} );
         console.log("This room does not exist.");
     }
 }
+
+
 
 
 
@@ -120,12 +129,14 @@ function getQuestionForGame() {
 }
 
 function playerAnswer(data) {
-    console.log('Player ID: ' + data.playerId + ' answered a question with: ' + data.answer);
+    //console.log('Player ID: ' + data.playerId + ' answered a question with: ' + data.answer);
 
     // The player's answer is attached to the data object.  \
     // Emit an event with the answer so it can be checked by the 'Host'
     //console.log(data);
     io.sockets.in(data.gameID).emit('hostCheckAnswer', data);
+
+    this.emit('errorAnswer', data);
 }
 
 
@@ -180,13 +191,33 @@ var questions =
         ]
     },
     {
-        "question" : "Quel épisode d'un jeu peut être d'Or ou d'Argent ?",
+        "question" : "Quel épisode d'un jeu a été d'Or et d'Argent ?",
         "answer" : 0,
         "answers" :  [
             'Pokémon',
-            '',
-            'Maggie',
-            'Lisa'
+            'Halo',
+            'Call of Duty',
+            'Batman'
         ]
-    }
+    },
+    {
+        "question" : "Qui est l'intru ?",
+        "answer" : 1,
+        "answers" :  [
+            '7',
+            '13',
+            '5',
+            '23'
+        ]
+    },
+    {
+        "question" : "Dans un épisode des Simpsons, Homer porte des lunettes, énonce le théorème de Pythagore, mais se trompe. Pour lui dans quel triangle la somme des carrés de deux côtés est égal au carré du troisième côté ?",
+        "answer" : 0,
+        "answers" :  [
+            'Isocèle',
+            'Équilatéral',
+            'Rectangle',
+            'Quelconque'
+        ]
+    },
 ];

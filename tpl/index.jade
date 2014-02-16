@@ -7,6 +7,7 @@ html
         link(rel='stylesheet', href='/stylesheets/style.css')
     body
         h1 Socket I/O Session
+        
         section.row
             section.col-md-12#gameSection
                 div#initScene.col-md-4.col-md-offset-4
@@ -35,19 +36,20 @@ html
             div.info enter the following Game ID:
             div.gameId#spanNewGameCode
 
-            div#playersWaiting
+            ul#playersWaiting.list-group.col-md-6
             button.btn.btn-default#btnStartGame(style="display: none;") Start
 
         script(id="join-game-template", type="text/template")
           div.input-group
             input(type='text', class="form-control", placeholder="gameID")#inputGameID
             input(type='text', class="form-control name", placeholder="Name")#inputPlayerName
-          button.btn.btn-default#send Send
+          button.btn.btn-default#send Join
+          div#playerWaitingMessage
 
         script(id="host-game-template", type="text/template")
           div#wordArea
             #hostWord 5
-          div#playerScores
+          ul#playerScores.list-group
             //- div#player1Score.playerScore
             //-   span.score 0
             //-   span.playerName Player 1
