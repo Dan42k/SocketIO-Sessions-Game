@@ -1,5 +1,4 @@
-;
-jQuery(function($){    
+jQuery(function($){
     'use strict';
 
     var socket = io.connect('http://127.0.0.1:4700');
@@ -35,7 +34,7 @@ jQuery(function($){
             //console.log(App[App.myRole], window[App.myRole]);
             console.log(data);
             if (App.myRole === "Host") {
-                Host.updateWaitingScreen(data); 
+                Host.updateWaitingScreen(data);
             } else {
                 Player.updateWaitingScreen(data);
             }
@@ -44,7 +43,7 @@ jQuery(function($){
         beginNewGame: function(data) {
             console.log('ok');
             if (App.myRole === "Host") {
-                Host.gameStarted(data); 
+                Host.gameStarted(data);
             } else {
                 Player.gameStarted(data);
             }
@@ -60,7 +59,7 @@ jQuery(function($){
             App.currentRound = data.round;
 
             if (App.myRole === "Host") {
-                Host.newQuestion(data); 
+                Host.newQuestion(data);
             } else {
                 Player.newQuestion(data);
             }
@@ -71,6 +70,14 @@ jQuery(function($){
                 Host.checkAnswer(data);
             }
         },
+
+        disconnected: function(data) {
+            if (App.myRole === "Host") {
+                Host.connexionLosted(data);
+            } else {
+                Player.connexionLosted(data);
+            }
+        }
     };
 
     var Host = {
@@ -123,13 +130,13 @@ jQuery(function($){
 
             for (var i = 0; i < Host.numPlayersInRoom; i++) {
                 $('#playerScores').append('<li id="player' + i + 'Score" class="playerScore list-group-item"><span class="score badge">0</span><span class="playerName"> John Doe </li>');
-            };
+            }
 
             for (var i = 0; i < Host.numPlayersInRoom; i++) {
                 $('#player' + i + 'Score').find('.playerName').html(Host.players[i].name);
                 $('#player' + i + 'Score').find('.score').attr('id', Host.players[i].mySocketID);
                 console.log(i);
-            };
+            }
 
            /* $('#player1Score')
                     .find('.playerName')
@@ -158,10 +165,6 @@ jQuery(function($){
             var $playerName = $pScore.next('span').text();
 
             if (data.round === App.currentRound){
-                
-
-                //console.log(Host.currentCorrectAnswer, data.answer);
-                console.log($pScore);
                 if(Host.currentCorrectAnswer === data.answer ) {
                     // Add 5 to the player's score
                     console.log($pScore);
@@ -174,7 +177,7 @@ jQuery(function($){
                     var data = {
                         gameID : App.gameID,
                         round : App.currentRound
-                    }
+                    };
 
                     $('.alert').remove();
 
@@ -184,6 +187,10 @@ jQuery(function($){
                      $('#gameSection:not(:has(".alert"))').prepend('<div class="alert alert-danger">' + $playerName + ' s\'est trompé </div>');
                 }
             }
+        },
+
+        connexionLosted: function(data) {
+            alert('connexion perdue');
         }
     };
 
@@ -196,12 +203,13 @@ jQuery(function($){
         },
 
         onPlayerStartClick: function (){
+            //alert('ok');
             var data = {
                 gameID : +($('#inputGameID').val()),
                 name : $('#inputPlayerName').val()
             };
             socket.emit('playerJoinGame', data);
-            console.log(data);
+            //console.log(data);
             App.myRole = 'Player';
             Player.myName = data.name;
         },
@@ -226,7 +234,7 @@ jQuery(function($){
         },
 
         newQuestion: function (data) {
-            
+
             var $list = $('<ul>').attr('id','ulAnswers');
 
                 // Insert a list item for each word in the word list
@@ -240,7 +248,7 @@ jQuery(function($){
                                 .val(this)               //  <ul> <li> <button class='btnAnswer' value='word'> </button> </li> </ul>
                                 .html(this)              //  <ul> <li> <button class='btnAnswer' value='word'>word</button> </li> </ul>
                             )
-                        )
+                        );
                 });
 
 
@@ -260,7 +268,7 @@ jQuery(function($){
                 playerID: App.mySocketID,
                 answer: answer,
                 round: App.currentRound
-            }
+            };
             socket.emit('playerAnswer',data);
         },
         errorAnswer: function (data) {
@@ -268,14 +276,27 @@ jQuery(function($){
                 $('#gameSection:not(:has(".alert"))').prepend('<div class="alert alert-danger"> False </div>');
             }
         },
+
         NotFoundRoom: function (data) {
             $('#gameSection:not(:has(".alert"))').prepend('<div class="alert alert-danger">' + data.message + '</div>');
+        },
+
+        connexionLosted: function(data) {
+            alert('connexion perdue');
         }
-        
-    }
+    };
+
+    // $(document).on('beforeunload', function(){
+    //     socket.emit('disconnect', { data: "truc" });
+    // });
+
+    socket.on('disconnect', function(){
+        socket.emit('doge', { data: "MACHIN truc" });
+
+    });
 
     socket.on('connected', App.onConnected );
-    
+
     socket.on('newGameCreated', Host.displayHostGame);
     socket.on('playerJoinedRoom', App.playerJoinedRoom);
     socket.on('beginNewGame', App.beginNewGame);

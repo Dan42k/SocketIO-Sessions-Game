@@ -1,6 +1,6 @@
 var express = require("express");
 
-var port = 4700; 
+var port = 4700;
 
 var app = express();
 app.set('views', __dirname + '/tpl');
@@ -16,9 +16,11 @@ app.use(express.static(__dirname + '/public'));
 
 var io = require('socket.io').listen(app.listen(port));
 
-//io.set('log level', 1); 
+//io.set('log level', 1);
 
 var socketMain;
+
+var players = {};
 
 
 
@@ -33,15 +35,27 @@ io.sockets.on('connection', function (socket) {
     socketMain.on('playerJoinGame', playerJoinGame);
     socketMain.on('hostCountdownFinished', hostStartGame);
     socketMain.on('playerAnswer', playerAnswer);
-	socketMain.on('hostNextRound', hostNextRound);
+    socketMain.on('hostNextRound', hostNextRound);
 
-    socketMain.on('disconnect', function(){
-        
-        //var userDisconnected = socket.pseudo;
-        console.log(this);
-        /*socket.broadcast.emit('user_leave', { username: userDisconnected });
-        delete users[socket.pseudo];*/
-        io.sockets.emit('player_disconnected');
+	socketMain.on('doge', function(data){
+        console.log(data);
+    });
+
+    socketMain.on('disconnect', function(data){
+
+
+        console.log('TRUC', data);
+        delete players[socketMain.playerName];
+
+        var array = Object.keys(io.sockets.manager.roomClients[socket.id]).map(function(value, index) {
+           return [value];
+        });
+
+        if(array[1] !== undefined) {
+            var chan = String(array[1]).substring(1);
+            io.sockets.in(chan).emit('player_disconnected');
+        }
+
     });
 });
 
@@ -63,7 +77,7 @@ function hostCreateNewGame() {
     // Return the Room ID (gameId) and the socket ID (mySocketId) to the browser client
     this.emit('newGameCreated', {gameID: thisGameID, mySocketID: this.id});
 
-    // Join the Room and wait for the players 
+    // Join the Room and wait for the players
     socketMain.join(thisGameID.toString());
 };
 
@@ -93,24 +107,21 @@ function playerJoinGame(data) {
     if( room != undefined ){
         // attach the socket id to the data object.
         data.mySocketID = sock.id;
-        
+
         // Join the room
         sock.join(data.gameID);
 
         //console.log('Player ' + data.playerName + ' joining game: ' + data.gameId );
-
+        sock.playerName = data.playerName;
+        players[sock.playerName] = sock;
         // Emit an event notifying the clients that the player has joined the room.
         io.sockets.in(data.gameID).emit('playerJoinedRoom', data);
     } else {
         // Otherwise, send an error message back to the player.
         this.emit('NotFoundRoom', {message: "This room does not exist."} );
-        console.log("This room does not exist.");
+        //console.log("This room does not exist.");
     }
 }
-
-
-
-
 
 function getQuestionForGame() {
     var i = (Math.random() * questions.length) | 0
@@ -123,7 +134,7 @@ function getQuestionForGame() {
         question: question,
         goodAnswer: goodAnswer,
         answers: answers
-    }
+    };
 
     return questionsData;
 }
@@ -158,7 +169,7 @@ function hostNextRound(data) {
 *
 */
 
-var questions = 
+var questions =
 [
     {
         "question" : "Dans quel type de triangle, la somme des carrés de deux côtés est égal au carré du troisième côté ?",
